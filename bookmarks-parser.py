@@ -8,6 +8,7 @@ BEGIN_OF_FOLDER = "<DT><H3 ADD_DATE="
 LINK = "<DT><A"
 HEADER = '<!DOCTYPE NETSCAPE-Bookmark-file-1>'
 ADD_DATE = "ADD_DATE="
+LAST_MODIFIED = "LAST_MODIFIED="
 HREF = "HREF="
 ICON = "ICON="
 
@@ -18,10 +19,29 @@ ADDED = "added"
 MODIFIED = "modified"
 URL = "url"
 
-DEFAULT_CATEGORY = "unnamed group"
-
 out_list = []
 bookmarks = {}
+
+
+def print_output(out_filename):
+    out_file = open(out_filename, 'w+')
+    if len(out_list) > 0:
+        out_file.write("[\n")
+        for group in out_list:
+            out_file.write("     {\n")
+            out_file.write("         'name': '" + group[NAME] + "',\n")
+            out_file.write("         'bookmarks': [\n")
+            for bookmark in group[BOOKMARKS]:
+                out_file.write("             {\n")
+                out_file.write("                 'title': " + bookmark[TITLE] + ",\n")
+                out_file.write("                 'added': " + bookmark[ADDED] + ",\n")
+                out_file.write("                 'modified': " + bookmark[MODIFIED] + ",\n")
+                out_file.write("                 'url': " + bookmark[URL] + ",\n")
+                out_file.write("             }\n")
+            out_file.write("         ]\n")
+            out_file.write("     }\n")
+        out_file.write("]\n")
+    out_file.close()
 
 
 def create_output():
@@ -45,8 +65,7 @@ def create_output():
 
 
 def parse_bookmarks(in_filename):
-    print("Filename: " + in_filename)
-
+    global bookmarks
     #   Input file.
     try:
         in_file = open(in_filename, 'r+')
@@ -96,16 +115,18 @@ def parse_bookmarks(in_filename):
                 # print(link_title)
 
                 #	Let's get the add date.
-                link_date_add_begin = line.find(ADD_DATE, len(LINK)) + 10
+                link_date_add_begin = line.find(ADD_DATE, len(LINK))
                 link_date_add_end = line.find('"', link_date_add_begin + 10)
-                link_add_date = line[link_date_add_begin:link_date_add_end]
+                link_add_date = line[link_date_add_begin + 10:link_date_add_end]
                 # print(link_add_date)
 
                 #	Let's get the last modified date. Equals add date.
-                # link_date_modified_begin = 0
-                # link_date_modified_end = 0
-                link_modified_date = link_add_date
-                # print(link_modified_date)W
+                link_date_modified_begin = line.find(LAST_MODIFIED, len(LINK))
+                if link_date_modified_begin == -1:
+                    link_modified_date = link_add_date
+                else:
+                    link_date_modified_end = line.find('"', link_date_modified_begin + 15)
+                    link_modified_date = line[link_date_modified_begin + 15:link_date_modified_end]
 
                 #   Create dict of bookmark.
                 bookmark = {URL: the_link,
@@ -114,19 +135,22 @@ def parse_bookmarks(in_filename):
                             TITLE: link_title}
 
                 # Add bookmark to bookmarks.
-                if len(current_folder) == 0:
-                    bookmarks[DEFAULT_CATEGORY] = bookmark
+                if len(bookmarks) > 0 and current_folder in bookmarks:
+                    bookmarks[current_folder].append(bookmark)
                 else:
-                    bookmarks[current_folder] = bookmark
+                    bookmarks[current_folder] = [bookmark]
 
     create_output()
 
 
 if __name__ == '__main__':
-    if len(sys.argv) != 2:
-        print("Start the script like so: python bookmarks-parser.py <filename>.")
+    if len(sys.argv) != 3:
+        print("Start the script like so: python bookmarks-parser.py <input_filename> <output_filename>.")
     else:
-        filename = sys.argv[1]
-        parse_bookmarks(filename)
-
-        print(out_list)
+        input_filename = sys.argv[1]
+        output_filename = sys.argv[2]
+        print("Input filename: " + input_filename + "\nOutput filename: " + output_filename)
+        parse_bookmarks(input_filename)
+        print("Parsing...")
+        print_output(output_filename)
+        print("Done.")
