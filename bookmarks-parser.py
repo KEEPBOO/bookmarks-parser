@@ -45,7 +45,7 @@ def print_output(out_filename):
 
 
 def create_output():
-    #[
+    # [
     #     {
     #         "name": "Group1",
     #         "bookmarks": [
@@ -144,13 +144,19 @@ def parse_bookmarks(in_filename):
 
 
 if __name__ == '__main__':
-    if len(sys.argv) != 3:
-        print("Start the script like so: python bookmarks-parser.py <input_filename> <output_filename>.")
+    if len(sys.argv) < 2:
+        print("Start the script like so: python bookmarks-parser.py <input_filename> [<output_filename>].")
     else:
         input_filename = sys.argv[1]
-        output_filename = sys.argv[2]
-        print("Input filename: " + input_filename + "\nOutput filename: " + output_filename)
-        parse_bookmarks(input_filename)
+        print 'Input filename:', input_filename
+        save_to_file = len(sys.argv) > 2
+        if save_to_file:
+            output_filename = sys.argv[2]
+            print 'Output filename:', output_filename
         print("Parsing...")
-        print_output(output_filename)
+        parse_bookmarks(input_filename)
+        if save_to_file:
+            print_output(output_filename)
+        else:
+            print out_list
         print("Done.")
