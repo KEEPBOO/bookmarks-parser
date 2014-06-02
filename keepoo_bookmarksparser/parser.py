@@ -30,7 +30,8 @@ def parse_bookmarks(stream):
             bookmark = dt.find('a')
             group['bookmarks'].append({
                 'title': bookmark.string,
-                'url': bookmark['href']
+                'url': bookmark.get('href', ''),
+                'add_date': bookmark.get('add_date', '')
             })
     if group:
         out_list.append(group)
