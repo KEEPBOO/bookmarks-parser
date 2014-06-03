@@ -2,7 +2,7 @@ from distutils.core import setup
 
 setup(
     name='keepboo-bookmarksparser',
-    version='0.1.2',
+    version='0.1.3',
     packages=['keepoo_bookmarksparser'],
     url='https://github.com/KEEPBOO/bookmarks-parser',
     license='',

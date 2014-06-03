@@ -4,10 +4,8 @@
 from bs4 import BeautifulSoup
 
 
-out_list = []
-
-
 def parse_bookmarks(stream):
+    out_list = []
     parsed_bookmarks = BeautifulSoup(stream)
 
     if parsed_bookmarks.contents[0].lower() != 'netscape-bookmark-file-1':
