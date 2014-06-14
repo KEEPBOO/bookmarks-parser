@@ -9,7 +9,7 @@ def parse_bookmarks(stream):
     parsed_bookmarks = BeautifulSoup(stream)
 
     if parsed_bookmarks.contents[0].lower() != 'netscape-bookmark-file-1':
-        raise ImportError("Does not correct bookmarks file.")
+        raise ImportError("Is not correct bookmarks file.")
 
     current_folder = None
     group = None
@@ -23,11 +23,13 @@ def parse_bookmarks(stream):
                 'name': current_folder,
                 'bookmarks': []
             }
-
-        if dt.find('a') and current_folder is not None:
+        elif dt.find('a') and current_folder is not None:
             bookmark = dt.find('a')
+            title = bookmark.string
+            if title:
+                title = title.encode('ascii', 'xmlcharrefreplace')
             group['bookmarks'].append({
-                'title': bookmark.string,
+                'title': title,
                 'url': bookmark.get('href', ''),
                 'add_date': bookmark.get('add_date', '')
             })
